@@ -1,4 +1,4 @@
-# SVEAD: Simplified Voronoi-based Ensemble Anomaly Detection
+# SVEAD: Stochastic Voronoi-based Ensemble Anomaly Detection
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
@@ -13,17 +13,6 @@ SVEAD partitions the feature space using Voronoi tessellation with randomly samp
 1. **Relative Position**: Distance to nearest anchor normalized by cell radius
 2. **Cell Density**: Average density of the assigned Voronoi cell
 3. **Ensemble Averaging**: Scores averaged across multiple random tessellations
-
-**Anomaly Score Formula:**
-```
-score = (dist_to_anchor / max_dist_in_cell) × (mean_dist_in_cell / global_max_mean_dist)
-```
-
-Where:
-- `dist_to_anchor`: Distance from test point to its nearest anchor
-- `max_dist_in_cell`: Maximum distance in the assigned cell (computed on training set)
-- `mean_dist_in_cell`: Average distance in the assigned cell (computed on training set)
-- `global_max_mean_dist`: Maximum mean distance across all cells (for normalization)
 
 ## 🚀 Installation
 
@@ -56,10 +45,6 @@ model.fit(X_train)
 
 # Compute anomaly scores
 scores = model.decision_function(X_test)
-
-# Higher scores indicate more anomalous samples
-threshold = np.percentile(scores, 95)  # Top 5% as anomalies
-predictions = (scores > threshold).astype(int)
 ```
 
 ### With Evaluation
@@ -87,13 +72,9 @@ SVEAD(
 
 | Parameter | Description | Typical Range | Impact |
 |-----------|-------------|---------------|--------|
-| `max_samples` | Anchor points per tessellation | 16-512 | Higher = finer granularity, more memory |
-| `n_estimators` | Number of tessellations | 50-200 | Higher = more stable, slower |
+| `max_samples` | Anchor points per tessellation | 4-512 | Higher = finer granularity, more memory |
+| `n_estimators` | Number of tessellations | 20-200 | Higher = more stable, slower |
 | `random_state` | Random seed | Any int | For reproducibility |
-
-**Memory Usage (approximate):**
-- Training: `O(n × d + t × max_samples × d)` where n=samples, d=features
-- Inference: `O(batch_size × d + t × max_samples × d)`
 
 ### Batch Processing for Large Datasets
 ```python
