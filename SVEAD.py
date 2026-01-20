@@ -49,7 +49,6 @@ class SVEAD:
         return self
         
     def decision_function(self, X=None, batch_size=100000):
-        # 确保输入是 float32
         if X is None:
             X_tensor = self.X_orig
         else:
