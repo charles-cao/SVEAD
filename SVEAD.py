@@ -1,5 +1,5 @@
-import torch
 import numpy as np
+import torch
 
 class SVEAD:
     def __init__(self, max_samples=16, n_estimators=100, random_state=None):
@@ -29,12 +29,11 @@ class SVEAD:
         self.global_sum_dist = torch.zeros((self.t, self.max_samples), dtype=torch.float32, device=self.device)
         self.global_count = torch.zeros((self.t, self.max_samples), dtype=torch.float32, device=self.device)
 
-        fit_batch_size = 100000 
+        fit_batch_size = 10000 
         for i in range(0, n_samples, fit_batch_size):
             end = min(i + fit_batch_size, n_samples)
             batch_x = self.X_orig[i:end].unsqueeze(0) # [1, batch_n, D]
             
-            # 计算距离（float32）
             dists = torch.cdist(batch_x, self.samples_tensor, p=2) # [T, batch_n, M]
             min_d, min_idx = torch.min(dists, dim=2) # [T, batch_n]
 
@@ -43,12 +42,18 @@ class SVEAD:
             self.global_count.scatter_add_(1, min_idx, torch.ones_like(min_d))
 
         self.global_mean_dist = self.global_sum_dist / (self.global_count + 1e-9)
-        self.global_max_dist = torch.clamp(self.global_max_dist, min=1e-9)
+        isolated = (self.global_count == 0)
+        self.global_max_dist[isolated] = self.global_max_dist[~isolated].max()
+        self.global_mean_dist[isolated] = self.global_mean_dist[~isolated].max()
 
+        self.global_max_dist = torch.clamp(self.global_max_dist, min=1e-9)
+        self.global_mean_dist_max = self.global_mean_dist.max()
+
+        self.isolated = (self.global_count <= 1)  # [T, M]
 
         return self
         
-    def decision_function(self, X=None, batch_size=100000):
+    def decision_function(self, X=None, batch_size=10000):
         if X is None:
             X_tensor = self.X_orig
         else:
@@ -67,9 +72,11 @@ class SVEAD:
             sample_max_dist = torch.gather(self.global_max_dist, 1, nearest_idx)
             sample_mean_dist = torch.gather(self.global_mean_dist, 1, nearest_idx)
             
-            batch_scores = (nearest_dist / sample_max_dist) * sample_mean_dist
+            batch_scores = (nearest_dist / sample_max_dist) * (sample_mean_dist / self.global_mean_dist_max)
 
             batch_scores = torch.nan_to_num(batch_scores, nan=0.0)
+            isolated_mask = torch.gather(self.isolated.float(), 1, nearest_idx)  # [T, batch_n]
+            batch_scores = torch.where(isolated_mask.bool(), torch.ones_like(batch_scores), batch_scores)
             
             all_scores[start_it:end_it] = torch.mean(batch_scores, dim=0).cpu().numpy()
 
