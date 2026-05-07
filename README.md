@@ -11,7 +11,7 @@
 SVEAD partitions the feature space using Voronoi tessellation with randomly sampled anchor points. For each test sample, the anomaly score is computed based on:
 
 1. **Relative Position**: Distance to nearest anchor normalized by cell radius
-2. **Cell Density**: Average density of the assigned Voronoi cell
+2. **Cell Scale**: Average scale of the assigned Voronoi cell
 3. **Ensemble Averaging**: Scores averaged across multiple random tessellations
 
 ## 🚀 Installation
