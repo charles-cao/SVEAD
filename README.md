@@ -1,4 +1,4 @@
-# SVEAD: Stochastic Voronoi-based Ensemble Anomaly Detection
+# SVEAD: Stochastic Voronoi Ensembles for Anomaly Detection
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
@@ -40,7 +40,7 @@ X_train = np.random.randn(10000, 10)  # 10k samples, 10 features
 X_test = np.random.randn(1000, 10)    # 1k test samples
 
 # Initialize and fit
-model = SVEAD(max_samples=256, t=100, random_state=42)
+model = SVEAD(max_samples=18, t=100, random_state=42)
 model.fit(X_train)
 
 # Compute anomaly scores
@@ -62,7 +62,7 @@ print(f"AUC-PR:  {auc_pr:.4f}")
 ## 🎛️ Parameters
 ```python
 SVEAD(
-    max_samples=256,      # Number of anchor points per tessellation
+    max_samples=18,      # Number of anchor points per tessellation
     t=100,                # Number of ensemble tessellations
     random_state=None     # Random seed for reproducibility
 )
