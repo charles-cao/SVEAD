@@ -95,15 +95,3 @@ print(f"Using device: {model.device}")
 
 
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
-
-## 📚 Citation
-
-If you use SVEAD in your research, please cite:
-```bibtex
-@article{cao2026stochastic,
-  title={Stochastic Voronoi Ensembles for Anomaly Detection},
-  author={Cao, Yang and Yang, Sikun and Yang, Yujiu},
-  journal={arXiv preprint arXiv:2601.03664},
-  year={2026}
-}
-```
